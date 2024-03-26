@@ -1,0 +1,25 @@
+Note: this is just a model of how the input .json file should be (for the sake
+of documentation). This file will not be able to run the mesher. To do so, 
+delete this header, change the name of this file to "specimen_parameters.json",
+and then run the python script. Good luck.                   PWierna III-2023
+
+{
+
+ "Geometry": {
+               "type": "Half",
+               "origin": [ 0.0 , 0.0 , 0.0 ],
+               "total_width" : 500.0,
+               "hole_diameter" : 250,
+               "grip_length" : 250,
+               "lengthsratio_grip2holezone" : 1.0
+             },
+
+ "Mesh": {
+           "nelements_transv": 20,
+           "nelements_diag": 15,
+           "nelements_long_holezone": 20,
+           "nelements_long_gripzone": 10,
+           "elements_order": 1
+         }
+
+}
