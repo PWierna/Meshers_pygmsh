@@ -10,27 +10,18 @@
 import gmsh
 import numpy as np
 import math
+import json
 
 #·# Inputs --------------------------------------------------------------------
-#·# Specimen Geometry parameters:
-X0 = 0      #
-Y0 = 0      #
-Z0 = 0      #
-total_width  = 500   #Specimen's grip (total) width 
-hole_diam    = 250 #Hole diameter (Always located at the geom center of the specimen)
-grip_length  = 250   #Specimen's total length
-alpha_ratio  = 1.0  #Grip to Hole-Zone lengths ratio  
-geom_type    = 'Whole' #Options: "Quarter","Half","Whole"
-
-#·# Discretization parameters:
-nelem_transv = 20#
-nelem_diag   = 15#
-nelem_long_holezone = 20
-nelem_long_grip     = 10#
+#Hard setting: Name of the input file with the Specimen's Mesh and Geometry parameters
+inpfilename = 'specimen_parameters.json'
 #------------------------------------------------------------------------------
 
      
-def get_geometry_data( geometry_type ):
+#-# Def: function to build the parametrized geometry
+def compute_geometry_data( geometry_type , total_width , hole_diam ,
+                           grip_length , alpha_ratio , nelem_transv ,
+                           nelem_diag , nelem_long_holezone , nelem_long_grip ):
     
     #(I)-POINTS DEFINITION:
     npoints = 23
@@ -139,43 +130,54 @@ def get_geometry_data( geometry_type ):
                        'signs'         : np.array([  1 , 1 , 1 , -1 , -1 , -1 ])})
     
     #(IV)-RETRIEVE SURFACES TO BE ACTUALLY MESHED:
-    if geometry_type == 'Quarter' or geom_type == 'quarter':
+    if geometry_type == 'Quarter' or geometry_type == 'quarter':
         sf_connect = np.array([1,2,9],dtype='int') 
-    elif geometry_type == 'Half' or geom_type == 'half':
+    elif geometry_type == 'Half' or geometry_type == 'half':
         sf_connect = np.array([1,2,7,8,9,12])
-    elif geometry_type == 'Whole' or geom_type == 'whole':
+    elif geometry_type == 'Whole' or geometry_type == 'whole':
         sf_connect = np.arange(1,13,dtype='int')
-    elif geometry_type == 'Whole2' or geom_type == 'whole':
+    elif geometry_type == 'Whole2' or geometry_type == 'whole':
         sf_connect = np.arange(9,17,dtype='int')
     
     #(V)-BUILD OUTPUT DICT:
-    output_geom_data = { "points" : pcoords ,
-                         "circle_arcs" : ca_conect ,
-                         "lines" : ln_conect ,
-                         "curve_loops" : cl_conect ,
-                         "surfaces" : sf_connect }
+    opt_geomdata = { "points" : pcoords ,
+                     "circle_arcs" : ca_conect ,
+                     "lines" : ln_conect ,
+                     "curve_loops" : cl_conect ,
+                     "surfaces" : sf_connect }
     
-    return output_geom_data
-        
-
-    
-
-#Build geometry data:    
-geometrydata = get_geometry_data(geom_type)
+    return opt_geomdata
         
 
 
+#-# Read input file with specimen parameters:
+inpfile = open(inpfilename)  
+specimen_parameters = json.load(inpfile)  
 
 
-geometrydata["points"][:,0] += X0
-geometrydata["points"][:,1] += Y0
-geometrydata["points"][:,2] += Z0
+#-# Parse input data and calculate geometry data:
+geometry_parameters = specimen_parameters["Geometry"]
+mesh_parameters     = specimen_parameters["Mesh"]
+
+geometrydata = compute_geometry_data( geometry_parameters["type"] , geometry_parameters["total_width"] , 
+                                      geometry_parameters["hole_diameter"] , geometry_parameters["grip_length"] ,
+                                      geometry_parameters["lengthsratio_grip2holezone"] ,
+                                      mesh_parameters["nelements_transv"] , mesh_parameters["nelements_diag"] ,
+                                      mesh_parameters["nelements_long_holezone"] , mesh_parameters["nelements_long_gripzone"])
+        
 
 
-#·# Initialize Geometric Model and Mesh Algorithm 
+#-# Translate origin:
+geometrydata["points"][:,0] += geometry_parameters["origin"][0] #Add X0
+geometrydata["points"][:,1] += geometry_parameters["origin"][1] #Add Y0
+geometrydata["points"][:,2] += geometry_parameters["origin"][2] #Add Z0
+
+
+#-# Initialize Geometric Model and Mesh Algorithm 
 gmsh.initialize()
 gmsh.option.setNumber("General.Terminal", 1)
 gmsh.model.add('OpenHole')
+
 
 
 #-# Create entities:
@@ -218,31 +220,36 @@ for cl in range(0,ncloops):
     cl_ids[cl] = gmsh.model.geo.addCurveLoop( cl_connect_i*geometrydata["curve_loops"][cl]['signs'] )
 
 
-#Create surfaces to be actually meshed:
+
+#-# Create surfaces to be actually meshed:
 nsurfs = np.shape(geometrydata["surfaces"])[0] #Get number of surfaces for the mesh
 sf_ids = np.zeros(nsurfs,dtype=int)            #Initialize IDs array
 for sf in range(0,nsurfs): #try: in [2,3]:   
     sf_ids[sf] = gmsh.model.geo.addPlaneSurface( [ geometrydata["surfaces"][sf] ] ) 
 
 
-#Assign surfaces a physical entity
+#-# Assign the surfaces to be actually meshed a physical entity:
 gmsh.model.addPhysicalGroup( 2 , sf_ids )
 
-#Synchronize model 
+
+#-# Synchronize model 
 gmsh.model.geo.synchronize()
 
-#Set transfinite surfaces & recombine
+
+#-# Set transfinite surfaces & recombine
 for sf in range(0,nsurfs):   
     gmsh.model.geo.mesh.setTransfiniteSurface(sf_ids[sf])
     gmsh.model.geo.mesh.setRecombine(2, sf_ids[sf])
 
-#Synchronize model 
+
+#-# Synchronize model 
 gmsh.model.geo.synchronize()
 
-#Finalize meshing and run GUI
+
+#-# Perform meshing and run GUI
 gmsh.option.setNumber("Mesh.RecombineAll", 2)
 gmsh.model.mesh.generate(2)
-gmsh.model.mesh.setOrder(2)
+gmsh.model.mesh.setOrder(mesh_parameters["elements_order"])
 gmsh.option.setNumber('Mesh.SurfaceFaces', 1)
 gmsh.option.setNumber('Mesh.Points', 1)
 gmsh.write('open_hole2D.msh')
