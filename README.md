@@ -1,8 +1,10 @@
 # Python Meshers for Laminated Composite Test-Specimens
 Python scripts to automate the meshing of coupons used in the virtual testing of laminated composite materials.
+Remote repository under construction.
+Author: PWierna, Eng.
 
 ## 1. Open-Hole Specimen 2D
-Scripts to generate the in-plane parametrized-meshes of open hole specimens, to be subsequently used in FEA Analysis either with 2D solid or plate/flat-shell elements. 
+Scripts to generate the in-plane parametrized-meshes of open hole specimens, to be subsequently used in FEA Analysis either with 2D solid or plate/flat-shell elements. To be updated soon.
 ![mesh_examples_picture](https://github.com/PWierna/Meshers_pygmsh/assets/74184016/28352371-de74-4102-9ad9-b6f7ce051cf1)
 
 
