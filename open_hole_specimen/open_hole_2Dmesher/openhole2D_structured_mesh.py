@@ -249,10 +249,10 @@ gmsh.model.geo.synchronize()
 #-# Perform meshing and run GUI
 gmsh.option.setNumber("Mesh.RecombineAll", 2)
 gmsh.model.mesh.generate(2)
-gmsh.model.mesh.setOrder(mesh_parameters["elements_order"])
+gmsh.model.mesh.setOrder( mesh_parameters["elements_order"] )
 gmsh.option.setNumber('Mesh.SurfaceFaces', 1)
 gmsh.option.setNumber('Mesh.Points', 1)
-gmsh.write('open_hole2D.msh')
+gmsh.write( specimen_parameters["General"]["output_file_name"]+'.msh' )
 gmsh.fltk.run()
 gmsh.finalize()
 
