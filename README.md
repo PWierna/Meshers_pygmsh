@@ -4,12 +4,12 @@ Remote repository under construction.
 Author: PWierna, Eng.
 
 ## 1. Open-Hole Specimen 2D
-Scripts to generate the in-plane parametrized-meshes of open hole specimens, to be subsequently used in FEA Analysis either with 2D solid or plate/flat-shell elements. To be updated soon.
+Scripts to generate the in-plane parametrized-meshes of open hole specimens, to be subsequently used in FE Analysis either with 2D solid or plate/flat-shell elements. To be updated soon.
 ![mesh_examples_picture](https://github.com/PWierna/Meshers_pygmsh/assets/74184016/28352371-de74-4102-9ad9-b6f7ce051cf1)
 
 
 ## 2. Open-Hole Specimen 3D
-Scripts to generate parametrized-meshes of laminated open hole specimens with an explicit discretization of the stacking sequence throughout the thickness, for the posterior FEA Analysis with 3D solid elements. 
+Scripts to generate parametrized-meshes of laminated open hole specimens with an explicit discretization of the stacking sequence throughout the thickness, for the posterior FE Analysis with 3D solid elements. 
 (To be added soon).
 ![mesh3D_examples_picture](https://github.com/PWierna/Meshers_pygmsh/assets/74184016/f00ddbdc-b053-4b61-ab3e-a47b7cb6c9f2)
 
