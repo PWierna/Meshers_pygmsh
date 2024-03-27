@@ -9,6 +9,7 @@ Scripts to generate the in-plane parametrized-meshes of open hole specimens, to 
 ## 2. Open-Hole Specimen 3D
 Scripts to generate parametrized-meshes of laminated open hole specimens with an explicit discretization of the stacking sequence throughout the thickness, for the posterior FEA Analysis with 3D solid elements. 
 (To be added soon).
+![mesh3D_examples_picture](https://github.com/PWierna/Meshers_pygmsh/assets/74184016/f00ddbdc-b053-4b61-ab3e-a47b7cb6c9f2)
 
 ## 3. Dogbone Specimen 2D
 (To be added soon).
